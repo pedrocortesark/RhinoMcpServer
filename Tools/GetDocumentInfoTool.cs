@@ -22,7 +22,7 @@ public class GetDocumentInfoTool : McpServerTool
     {
         Name = "get_document_info",
         Description = "Retrieves comprehensive information about the active Rhino document including metadata, statistics, and properties.",
-        InputSchema = new
+        InputSchema = JsonSerializer.SerializeToElement(new
         {
             type = "object",
             properties = new
@@ -35,7 +35,7 @@ public class GetDocumentInfoTool : McpServerTool
                 }
             },
             required = new string[] { }
-        }
+        })
     };
 
     public override async ValueTask<CallToolResult> InvokeAsync(RequestContext<CallToolRequestParams> request, CancellationToken cancellationToken)
@@ -44,13 +44,9 @@ public class GetDocumentInfoTool : McpServerTool
         {
             var includeStatistics = true;
             
-            if (request.Params.Arguments != null)
+            if (request.Params.Arguments != null && request.Params.Arguments.TryGetValue("includeStatistics", out var statsElement))
             {
-                var args = JsonSerializer.Deserialize<JsonElement>(request.Params.Arguments);
-                if (args.TryGetProperty("includeStatistics", out var statsElement))
-                {
-                    includeStatistics = statsElement.GetBoolean();
-                }
+                includeStatistics = statsElement.GetBoolean();
             }
 
             _logger.LogInformation("Getting document information (includeStatistics: {IncludeStats})", includeStatistics);
@@ -62,9 +58,8 @@ public class GetDocumentInfoTool : McpServerTool
                 return new CallToolResult
                 {
                     IsError = true,
-                    Content = new[]
-                    {
-                        TextContent.CreateFrom("No active Rhino document found. Please ensure Rhino is running and a document is open.")
+                    Content = new List<ContentBlock> {
+                        new TextContentBlock { Text = "No active Rhino document found. Please ensure Rhino is running and a document is open." }
                     }
                 };
             }
@@ -103,9 +98,9 @@ public class GetDocumentInfoTool : McpServerTool
 
             return new CallToolResult
             {
-                Content = new[]
+                Content = new List<ContentBlock>
                 {
-                    TextContent.CreateFrom($"Document Information{(includeStatistics ? " with Statistics" : "")}:\n\n```json\n{json}\n```")
+                    new TextContentBlock { Text = $"Document Information{(includeStatistics ? " with Statistics" : "")}:\n\n```json\n{json}\n```" }
                 }
             };
         }
@@ -115,9 +110,8 @@ public class GetDocumentInfoTool : McpServerTool
             return new CallToolResult
             {
                 IsError = true,
-                Content = new[]
-                {
-                    TextContent.CreateFrom($"Error retrieving document information: {ex.Message}")
+                Content = new List<ContentBlock> {
+                    new TextContentBlock { Text = $"Error retrieving document information: {ex.Message}" }
                 }
             };
         }

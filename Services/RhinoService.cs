@@ -19,7 +19,7 @@ public class RhinoService : IRhinoService
 
     public async Task<bool> IsRhinoRunningAsync()
     {
-        return await Task.FromResult(RhinoApp.IsInitialized);
+        return await Task.FromResult(RhinoDoc.ActiveDoc != null);
     }
 
     public RhinoDoc? GetActiveDocument()
@@ -45,21 +45,9 @@ public class RhinoService : IRhinoService
                 return null;
             }
 
-            // Try to open in headless mode for better performance
-            var doc = RhinoDoc.CreateHeadless(null);
-            if (doc != null)
-            {
-                var success = doc.ReadFile(filePath, new Rhino.FileIO.FileReadOptions());
-                if (success)
-                {
-                    _logger.LogInformation("Successfully opened document in headless mode: {FilePath}", filePath);
-                    return doc;
-                }
-            }
-
-            // Fallback to standard open
-            var result = RhinoDoc.Open(filePath, out var opened);
-            if (result && opened != null)
+            // Try to open using standard method
+            var opened = RhinoDoc.Open(filePath, out var wasAlreadyOpen);
+            if (opened != null)
             {
                 _logger.LogInformation("Successfully opened document: {FilePath}", filePath);
                 return opened;
@@ -105,17 +93,16 @@ public class RhinoService : IRhinoService
             try
             {
                 var documents = new List<DocumentInfo>();
-                var allDocs = RhinoDoc.Documents;
-
-                foreach (var doc in allDocs)
+                
+                // Since we don't have access to all open documents in headless mode,
+                // we'll just return the active document if available
+                var activeDoc = GetActiveDocument();
+                if (activeDoc != null)
                 {
-                    if (doc != null)
+                    var info = ConvertDocumentToInfo(activeDoc);
+                    if (info != null)
                     {
-                        var info = ConvertDocumentToInfo(doc);
-                        if (info != null)
-                        {
-                            documents.Add(info);
-                        }
+                        documents.Add(info);
                     }
                 }
 

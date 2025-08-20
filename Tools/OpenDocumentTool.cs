@@ -22,7 +22,7 @@ public class OpenDocumentTool : McpServerTool
     {
         Name = "open_document",
         Description = "Opens a Rhino 3DM file (in headless mode if possible) and returns document information including geometry count, layers, etc.",
-        InputSchema = new
+        InputSchema = JsonSerializer.SerializeToElement(new
         {
             type = "object",
             properties = new
@@ -34,7 +34,7 @@ public class OpenDocumentTool : McpServerTool
                 }
             },
             required = new[] { "filePath" }
-        }
+        })
     };
 
     public override async ValueTask<CallToolResult> InvokeAsync(RequestContext<CallToolRequestParams> request, CancellationToken cancellationToken)
@@ -46,23 +46,20 @@ public class OpenDocumentTool : McpServerTool
                 return new CallToolResult
                 {
                     IsError = true,
-                    Content = new[]
-                    {
-                        TextContent.CreateFrom("Missing required argument: filePath")
+                    Content = new List<ContentBlock> {
+                        new TextContentBlock { Text = "Missing required argument: filePath" }
                     }
                 };
             }
 
-            var args = JsonSerializer.Deserialize<JsonElement>(request.Params.Arguments);
-            
-            if (!args.TryGetProperty("filePath", out var filePathElement))
+            if (!request.Params.Arguments.TryGetValue("filePath", out var filePathElement))
             {
                 return new CallToolResult
                 {
                     IsError = true,
-                    Content = new[]
+                    Content = new List<ContentBlock>
                     {
-                        TextContent.CreateFrom("Missing required argument: filePath")
+                        new TextContentBlock { Text = "Missing required argument: filePath" }
                     }
                 };
             }
@@ -73,9 +70,8 @@ public class OpenDocumentTool : McpServerTool
                 return new CallToolResult
                 {
                     IsError = true,
-                    Content = new[]
-                    {
-                        TextContent.CreateFrom("File path cannot be empty")
+                    Content = new List<ContentBlock> {
+                        new TextContentBlock { Text = "File path cannot be empty" }
                     }
                 };
             }
@@ -89,9 +85,8 @@ public class OpenDocumentTool : McpServerTool
                 return new CallToolResult
                 {
                     IsError = true,
-                    Content = new[]
-                    {
-                        TextContent.CreateFrom($"Failed to open document: {filePath}. Please check the file path and ensure it's a valid Rhino 3DM file.")
+                    Content = new List<ContentBlock> {
+                        new TextContentBlock { Text = $"Failed to open document: {filePath}. Please check the file path and ensure it's a valid Rhino 3DM file." }
                     }
                 };
             }
@@ -104,9 +99,8 @@ public class OpenDocumentTool : McpServerTool
 
             return new CallToolResult
             {
-                Content = new[]
-                {
-                    TextContent.CreateFrom($"Successfully opened Rhino document:\n\n```json\n{json}\n```")
+                Content = new List<ContentBlock> {
+                    new TextContentBlock { Text = $"Successfully opened Rhino document:\n\n```json\n{json}\n```" }
                 }
             };
         }
@@ -116,9 +110,8 @@ public class OpenDocumentTool : McpServerTool
             return new CallToolResult
             {
                 IsError = true,
-                Content = new[]
-                {
-                    TextContent.CreateFrom($"Error opening document: {ex.Message}")
+                Content = new List<ContentBlock> {
+                    new TextContentBlock { Text = $"Error opening document: {ex.Message}" }
                 }
             };
         }

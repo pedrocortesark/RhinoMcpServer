@@ -22,7 +22,7 @@ public class GetObjectsByLayerTool : McpServerTool
     {
         Name = "get_objects_by_layer",
         Description = "Retrieves all geometry objects from a specific layer in the active Rhino document.",
-        InputSchema = new
+        InputSchema = JsonSerializer.SerializeToElement(new
         {
             type = "object",
             properties = new
@@ -40,7 +40,7 @@ public class GetObjectsByLayerTool : McpServerTool
                 }
             },
             required = new[] { "layerName" }
-        }
+        })
     };
 
     public override async ValueTask<CallToolResult> InvokeAsync(RequestContext<CallToolRequestParams> request, CancellationToken cancellationToken)
@@ -52,23 +52,21 @@ public class GetObjectsByLayerTool : McpServerTool
                 return new CallToolResult
                 {
                     IsError = true,
-                    Content = new[]
+                    Content = new List<ContentBlock>
                     {
-                        TextContent.CreateFrom("Missing required argument: layerName")
+                        new TextContentBlock { Text = "Missing required argument: layerName" }
                     }
                 };
             }
 
-            var args = JsonSerializer.Deserialize<JsonElement>(request.Params.Arguments);
-            
-            if (!args.TryGetProperty("layerName", out var layerNameElement))
+            if (!request.Params.Arguments.TryGetValue("layerName", out var layerNameElement))
             {
                 return new CallToolResult
                 {
                     IsError = true,
-                    Content = new[]
+                    Content = new List<ContentBlock>
                     {
-                        TextContent.CreateFrom("Missing required argument: layerName")
+                        new TextContentBlock { Text = "Missing required argument: layerName" }
                     }
                 };
             }
@@ -79,15 +77,15 @@ public class GetObjectsByLayerTool : McpServerTool
                 return new CallToolResult
                 {
                     IsError = true,
-                    Content = new[]
+                    Content = new List<ContentBlock>
                     {
-                        TextContent.CreateFrom("Layer name cannot be empty")
+                        new TextContentBlock { Text = "Layer name cannot be empty" }
                     }
                 };
             }
 
             var includeHidden = false;
-            if (args.TryGetProperty("includeHidden", out var hiddenElement))
+            if (request.Params.Arguments.TryGetValue("includeHidden", out var hiddenElement))
             {
                 includeHidden = hiddenElement.GetBoolean();
             }
@@ -108,18 +106,18 @@ public class GetObjectsByLayerTool : McpServerTool
                     return new CallToolResult
                     {
                         IsError = true,
-                        Content = new[]
+                        Content = new List<ContentBlock>
                         {
-                            TextContent.CreateFrom($"Layer '{layerName}' not found. Available layers: {string.Join(", ", availableLayers)}")
+                            new TextContentBlock { Text = $"Layer '{layerName}' not found. Available layers: {string.Join(", ", availableLayers)}" }
                         }
                     };
                 }
 
                 return new CallToolResult
                 {
-                    Content = new[]
+                    Content = new List<ContentBlock>
                     {
-                        TextContent.CreateFrom($"No objects found on layer '{layerName}'.")
+                        new TextContentBlock { Text = $"No objects found on layer '{layerName}'." }
                     }
                 };
             }
@@ -150,9 +148,9 @@ public class GetObjectsByLayerTool : McpServerTool
 
             return new CallToolResult
             {
-                Content = new[]
+                Content = new List<ContentBlock>
                 {
-                    TextContent.CreateFrom($"Objects from Layer '{layerName}' ({result.Count} objects):\n\n```json\n{json}\n```")
+                    new TextContentBlock { Text = $"Objects from Layer '{layerName}' ({result.Count} objects):\n\n```json\n{json}\n```" }
                 }
             };
         }
@@ -162,9 +160,9 @@ public class GetObjectsByLayerTool : McpServerTool
             return new CallToolResult
             {
                 IsError = true,
-                Content = new[]
+                Content = new List<ContentBlock>
                 {
-                    TextContent.CreateFrom($"Error retrieving objects from layer: {ex.Message}")
+                    new TextContentBlock { Text = $"Error retrieving objects from layer: {ex.Message}" }
                 }
             };
         }

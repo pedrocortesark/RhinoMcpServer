@@ -22,12 +22,12 @@ public class GetActiveDocumentTool : McpServerTool
     {
         Name = "get_active_document",
         Description = "Retrieves detailed information about the currently active Rhino document, including file path, units, layer count, and object count.",
-        InputSchema = new
+        InputSchema = JsonSerializer.SerializeToElement(new
         {
             type = "object",
             properties = new { },
             required = new string[] { }
-        }
+        })
     };
 
     public override async ValueTask<CallToolResult> InvokeAsync(RequestContext<CallToolRequestParams> request, CancellationToken cancellationToken)
@@ -43,9 +43,9 @@ public class GetActiveDocumentTool : McpServerTool
                 return new CallToolResult
                 {
                     IsError = true,
-                    Content = new[]
+                    Content = new List<ContentBlock>
                     {
-                        TextContent.CreateFrom("No active Rhino document found. Please ensure Rhino is running and a document is open.")
+                        new TextContentBlock { Text = "No active Rhino document found. Please ensure Rhino is running and a document is open." }
                     }
                 };
             }
@@ -58,9 +58,9 @@ public class GetActiveDocumentTool : McpServerTool
 
             return new CallToolResult
             {
-                Content = new[]
+                Content = new List<ContentBlock>
                 {
-                    TextContent.CreateFrom($"Active Rhino Document Information:\n\n```json\n{json}\n```")
+                    new TextContentBlock { Text = $"Active Rhino Document Information:\n\n```json\n{json}\n```" }
                 }
             };
         }
@@ -70,9 +70,9 @@ public class GetActiveDocumentTool : McpServerTool
             return new CallToolResult
             {
                 IsError = true,
-                Content = new[]
+                Content = new List<ContentBlock>
                 {
-                    TextContent.CreateFrom($"Error retrieving active document information: {ex.Message}")
+                    new TextContentBlock { Text = $"Error retrieving active document information: {ex.Message}" }
                 }
             };
         }

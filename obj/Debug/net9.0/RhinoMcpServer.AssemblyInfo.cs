@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RhinoMcpServer")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6ad841ba9dfe4760437a741a8d9c20ec56aedec8")]
 [assembly: System.Reflection.AssemblyProductAttribute("RhinoMcpServer")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RhinoMcpServer")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

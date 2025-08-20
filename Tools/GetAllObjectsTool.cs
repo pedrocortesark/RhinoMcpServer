@@ -22,7 +22,7 @@ public class GetAllObjectsTool : McpServerTool
     {
         Name = "get_all_objects",
         Description = "Retrieves all geometry objects from the active Rhino document with their properties, attributes, and metadata.",
-        InputSchema = new
+        InputSchema = JsonSerializer.SerializeToElement(new
         {
             type = "object",
             properties = new
@@ -43,7 +43,7 @@ public class GetAllObjectsTool : McpServerTool
                 }
             },
             required = new string[] { }
-        }
+        })
     };
 
     public override async ValueTask<CallToolResult> InvokeAsync(RequestContext<CallToolRequestParams> request, CancellationToken cancellationToken)
@@ -55,14 +55,12 @@ public class GetAllObjectsTool : McpServerTool
             
             if (request.Params.Arguments != null)
             {
-                var args = JsonSerializer.Deserialize<JsonElement>(request.Params.Arguments);
-                
-                if (args.TryGetProperty("includeHidden", out var hiddenElement))
+                if (request.Params.Arguments.TryGetValue("includeHidden", out var hiddenElement))
                 {
                     includeHidden = hiddenElement.GetBoolean();
                 }
                 
-                if (args.TryGetProperty("maxObjects", out var maxElement))
+                if (request.Params.Arguments.TryGetValue("maxObjects", out var maxElement))
                 {
                     maxObjects = Math.Min(Math.Max(maxElement.GetInt32(), 1), 10000);
                 }
@@ -77,9 +75,8 @@ public class GetAllObjectsTool : McpServerTool
             {
                 return new CallToolResult
                 {
-                    Content = new[]
-                    {
-                        TextContent.CreateFrom("No objects found in the active Rhino document.")
+                    Content = new List<ContentBlock> {
+                        new TextContentBlock { Text = "No objects found in the active Rhino document." }
                     }
                 };
             }
@@ -115,9 +112,9 @@ public class GetAllObjectsTool : McpServerTool
 
             return new CallToolResult
             {
-                Content = new[]
+                Content = new List<ContentBlock>
                 {
-                    TextContent.CreateFrom($"Rhino Objects Retrieved ({objects.Count} of {allObjects.Count} total):\n\n```json\n{json}\n```")
+                    new TextContentBlock { Text = $"Rhino Objects Retrieved ({objects.Count} of {allObjects.Count} total):\n\n```json\n{json}\n```" }
                 }
             };
         }
@@ -127,9 +124,8 @@ public class GetAllObjectsTool : McpServerTool
             return new CallToolResult
             {
                 IsError = true,
-                Content = new[]
-                {
-                    TextContent.CreateFrom($"Error retrieving objects: {ex.Message}")
+                Content = new List<ContentBlock> {
+                    new TextContentBlock { Text = $"Error retrieving objects: {ex.Message}" }
                 }
             };
         }

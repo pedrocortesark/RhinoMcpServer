@@ -61,6 +61,10 @@
             "RhinoCommon": {
               "target": "Package",
               "version": "[8.21.25188.17001, )"
+            },
+            "System.Reflection.Metadata": {
+              "target": "Package",
+              "version": "[9.0.8, )"
             }
           },
           "imports": [

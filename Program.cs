@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using RhinoMcpServer.Models;
@@ -32,32 +31,30 @@ builder.Services.AddSingleton<IRhinoService, RhinoService>();
 
 // Configure MCP server
 var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
-var mcpServerOptions = new McpServerOptions
+builder.Services.AddMcpServer(options =>
 {
-    ServerInfo = new Implementation
+    options.ServerInfo = new Implementation
     {
         Name = "rhino-mcp-server",
         Version = version
-    },
-    Capabilities = new ServerCapabilities
+    };
+    options.Capabilities = new ServerCapabilities
     {
         Tools = new ToolsCapability
         {
             ListChanged = true
         }
-    }
-};
-
-builder.Services.AddMcpServer(mcpServerOptions);
+    };
+});
 
 // Register MCP tools
-builder.Services.AddMcpTool<GetActiveDocumentTool>();
-builder.Services.AddMcpTool<ListOpenDocumentsTool>();
-builder.Services.AddMcpTool<OpenDocumentTool>();
-builder.Services.AddMcpTool<GetDocumentInfoTool>();
-builder.Services.AddMcpTool<GetAllObjectsTool>();
-builder.Services.AddMcpTool<GetObjectsByLayerTool>();
-builder.Services.AddMcpTool<GetLayersTool>();
+builder.Services.AddScoped<GetActiveDocumentTool>();
+builder.Services.AddScoped<ListOpenDocumentsTool>();
+builder.Services.AddScoped<OpenDocumentTool>();
+builder.Services.AddScoped<GetDocumentInfoTool>();
+builder.Services.AddScoped<GetAllObjectsTool>();
+builder.Services.AddScoped<GetObjectsByLayerTool>();
+builder.Services.AddScoped<GetLayersTool>();
 
 var host = builder.Build();
 

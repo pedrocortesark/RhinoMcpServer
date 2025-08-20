@@ -22,7 +22,7 @@ public class GetLayersTool : McpServerTool
     {
         Name = "get_layers",
         Description = "Retrieves all layers from the active Rhino document with their properties, hierarchy, and object counts.",
-        InputSchema = new
+        InputSchema = JsonSerializer.SerializeToElement(new
         {
             type = "object",
             properties = new
@@ -41,7 +41,7 @@ public class GetLayersTool : McpServerTool
                 }
             },
             required = new string[] { }
-        }
+        })
     };
 
     public override async ValueTask<CallToolResult> InvokeAsync(RequestContext<CallToolRequestParams> request, CancellationToken cancellationToken)
@@ -53,14 +53,12 @@ public class GetLayersTool : McpServerTool
             
             if (request.Params.Arguments != null)
             {
-                var args = JsonSerializer.Deserialize<JsonElement>(request.Params.Arguments);
-                
-                if (args.TryGetProperty("includeEmpty", out var emptyElement))
+                if (request.Params.Arguments.TryGetValue("includeEmpty", out var emptyElement))
                 {
                     includeEmpty = emptyElement.GetBoolean();
                 }
                 
-                if (args.TryGetProperty("includeHidden", out var hiddenElement))
+                if (request.Params.Arguments.TryGetValue("includeHidden", out var hiddenElement))
                 {
                     includeHidden = hiddenElement.GetBoolean();
                 }
@@ -75,9 +73,9 @@ public class GetLayersTool : McpServerTool
             {
                 return new CallToolResult
                 {
-                    Content = new[]
+                    Content = new List<ContentBlock>
                     {
-                        TextContent.CreateFrom("No layers found in the active Rhino document.")
+                        new TextContentBlock { Text = "No layers found in the active Rhino document." }
                     }
                 };
             }
@@ -129,9 +127,9 @@ public class GetLayersTool : McpServerTool
 
             return new CallToolResult
             {
-                Content = new[]
+                Content = new List<ContentBlock>
                 {
-                    TextContent.CreateFrom($"Rhino Layers ({layers.Count} of {allLayers.Count} total):\n\n```json\n{json}\n```")
+                    new TextContentBlock { Text = $"Rhino Layers ({layers.Count} of {allLayers.Count} total):\n\n```json\n{json}\n```" }
                 }
             };
         }
@@ -141,9 +139,9 @@ public class GetLayersTool : McpServerTool
             return new CallToolResult
             {
                 IsError = true,
-                Content = new[]
+                Content = new List<ContentBlock>
                 {
-                    TextContent.CreateFrom($"Error retrieving layers: {ex.Message}")
+                    new TextContentBlock { Text = $"Error retrieving layers: {ex.Message}" }
                 }
             };
         }

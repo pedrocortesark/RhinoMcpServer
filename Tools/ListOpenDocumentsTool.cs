@@ -22,12 +22,12 @@ public class ListOpenDocumentsTool : McpServerTool
     {
         Name = "list_open_documents",
         Description = "Retrieves a list of all currently open Rhino documents with their basic information.",
-        InputSchema = new
+        InputSchema = JsonSerializer.SerializeToElement(new
         {
             type = "object",
             properties = new { },
             required = new string[] { }
-        }
+        })
     };
 
     public override async ValueTask<CallToolResult> InvokeAsync(RequestContext<CallToolRequestParams> request, CancellationToken cancellationToken)
@@ -42,9 +42,8 @@ public class ListOpenDocumentsTool : McpServerTool
             {
                 return new CallToolResult
                 {
-                    Content = new[]
-                    {
-                        TextContent.CreateFrom("No open Rhino documents found. Please ensure Rhino is running and has documents open.")
+                    Content = new List<ContentBlock> {
+                        new TextContentBlock { Text = "No open Rhino documents found. Please ensure Rhino is running and has documents open." }
                     }
                 };
             }
@@ -57,9 +56,9 @@ public class ListOpenDocumentsTool : McpServerTool
 
             return new CallToolResult
             {
-                Content = new[]
+                Content = new List<ContentBlock>
                 {
-                    TextContent.CreateFrom($"Open Rhino Documents ({documents.Count} found):\n\n```json\n{json}\n```")
+                    new TextContentBlock { Text = $"Open Rhino Documents ({documents.Count} found):\n\n```json\n{json}\n```" }
                 }
             };
         }
@@ -69,9 +68,8 @@ public class ListOpenDocumentsTool : McpServerTool
             return new CallToolResult
             {
                 IsError = true,
-                Content = new[]
-                {
-                    TextContent.CreateFrom($"Error retrieving open documents: {ex.Message}")
+                Content = new List<ContentBlock> {
+                    new TextContentBlock { Text = $"Error retrieving open documents: {ex.Message}" }
                 }
             };
         }
