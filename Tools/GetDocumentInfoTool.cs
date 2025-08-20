@@ -49,7 +49,7 @@ public class GetDocumentInfoTool : McpServerTool
                 includeStatistics = statsElement.GetBoolean();
             }
 
-            _logger.LogInformation("Getting document information (includeStatistics: {IncludeStats})", includeStatistics);
+            // Removed logging to keep stdout clean for MCP protocol
 
             var documentInfo = await _rhinoService.GetActiveDocumentInfoAsync();
             

@@ -200,7 +200,7 @@ echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"get_active_docume
 
 ## Error Handling
 
-The server includes comprehensive error handling and logging. Check the console output for detailed information about operations and any issues.
+The server includes comprehensive error handling and logging. All logging output goes to **stderr** to keep **stdout** clean for MCP protocol communication. Error messages will appear in the console but won't interfere with Claude or other MCP clients.
 
 ## Limitations
 

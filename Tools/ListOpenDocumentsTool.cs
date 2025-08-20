@@ -34,7 +34,7 @@ public class ListOpenDocumentsTool : McpServerTool
     {
         try
         {
-            _logger.LogInformation("Listing open documents");
+            // Removed logging to keep stdout clean for MCP protocol
 
             var documents = await _rhinoService.GetOpenDocumentsAsync();
             

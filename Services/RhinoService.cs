@@ -49,7 +49,7 @@ public class RhinoService : IRhinoService
             var opened = RhinoDoc.Open(filePath, out var wasAlreadyOpen);
             if (opened != null)
             {
-                _logger.LogInformation("Successfully opened document: {FilePath}", filePath);
+                _logger.LogDebug("Successfully opened document: {FilePath}", filePath);
                 return opened;
             }
 
@@ -106,7 +106,7 @@ public class RhinoService : IRhinoService
                     }
                 }
 
-                _logger.LogInformation("Found {Count} open documents", documents.Count);
+                _logger.LogDebug("Found {Count} open documents", documents.Count);
                 return documents;
             }
             catch (Exception ex)
@@ -164,7 +164,7 @@ public class RhinoService : IRhinoService
                     }
                 }
 
-                _logger.LogInformation("Retrieved {Count} objects", objects.Count);
+                _logger.LogDebug("Retrieved {Count} objects", objects.Count);
                 return objects;
             }
             catch (Exception ex)
@@ -207,7 +207,7 @@ public class RhinoService : IRhinoService
                     }
                 }
 
-                _logger.LogInformation("Retrieved {Count} objects from layer {LayerName}", objects.Count, layerName);
+                _logger.LogDebug("Retrieved {Count} objects from layer {LayerName}", objects.Count, layerName);
                 return objects;
             }
             catch (Exception ex)
@@ -247,7 +247,7 @@ public class RhinoService : IRhinoService
                     }
                 }
 
-                _logger.LogInformation("Retrieved {Count} layers", layers.Count);
+                _logger.LogDebug("Retrieved {Count} layers", layers.Count);
                 return layers;
             }
             catch (Exception ex)

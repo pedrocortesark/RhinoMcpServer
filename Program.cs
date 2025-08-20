@@ -12,10 +12,13 @@ using System.Reflection;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-// Configure logging
+// Configure logging to stderr only (stdout is reserved for MCP protocol)
 builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-builder.Logging.SetMinimumLevel(LogLevel.Information);
+builder.Logging.AddConsole(options =>
+{
+    options.LogToStandardErrorThreshold = LogLevel.Trace;
+});
+builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
 // Add configuration
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
@@ -63,8 +66,9 @@ try
     var logger = host.Services.GetRequiredService<ILogger<Program>>();
     var options = host.Services.GetRequiredService<IOptions<RhinoMcpServerOptions>>();
     
-    logger.LogInformation("Starting Rhino MCP Server v{Version}...", version);
-    logger.LogInformation("Configuration: MaxObjects={MaxObjects}, HeadlessMode={HeadlessMode}, Timeout={Timeout}s",
+    // Startup logging moved to stderr to avoid interfering with MCP protocol on stdout
+    logger.LogDebug("Starting Rhino MCP Server v{Version}...", version);
+    logger.LogDebug("Configuration: MaxObjects={MaxObjects}, HeadlessMode={HeadlessMode}, Timeout={Timeout}s",
         options.Value.MaxObjectsPerRequest,
         options.Value.EnableHeadlessMode,
         options.Value.TimeoutSeconds);

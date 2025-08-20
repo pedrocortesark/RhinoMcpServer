@@ -90,8 +90,7 @@ public class GetObjectsByLayerTool : McpServerTool
                 includeHidden = hiddenElement.GetBoolean();
             }
 
-            _logger.LogInformation("Getting objects from layer: {LayerName} (includeHidden: {IncludeHidden})", 
-                layerName, includeHidden);
+            // Removed logging to keep stdout clean for MCP protocol
 
             var objects = await _rhinoService.GetObjectsByLayerAsync(layerName);
             

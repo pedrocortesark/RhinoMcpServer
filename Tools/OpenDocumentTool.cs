@@ -76,7 +76,7 @@ public class OpenDocumentTool : McpServerTool
                 };
             }
 
-            _logger.LogInformation("Opening document: {FilePath}", filePath);
+            // Removed logging to keep stdout clean for MCP protocol
 
             var documentInfo = await _rhinoService.OpenDocumentAsync(filePath);
             

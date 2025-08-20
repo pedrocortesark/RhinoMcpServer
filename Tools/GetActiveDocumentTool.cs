@@ -34,7 +34,7 @@ public class GetActiveDocumentTool : McpServerTool
     {
         try
         {
-            _logger.LogInformation("Getting active document information");
+            // Removed logging to keep stdout clean for MCP protocol
 
             var documentInfo = await _rhinoService.GetActiveDocumentInfoAsync();
             

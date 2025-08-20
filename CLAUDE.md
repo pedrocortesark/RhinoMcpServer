@@ -85,6 +85,9 @@ public override async ValueTask<CallToolResult> InvokeAsync(RequestContext<CallT
 - Feature toggles for different capabilities
 - Environment variable overrides with "RHINO_MCP_" prefix
 
+### Critical MCP Protocol Requirement
+**STDOUT MUST BE CLEAN**: All logging is configured to go to stderr only. The MCP protocol requires that stdout contains ONLY JSON protocol messages. Any console output to stdout will break Claude integration with "Unexpected token" JSON parse errors.
+
 ### Error Handling Strategy
 - Comprehensive try-catch in all tool methods
 - Structured logging with correlation IDs

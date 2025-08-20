@@ -64,8 +64,7 @@ public class GetLayersTool : McpServerTool
                 }
             }
 
-            _logger.LogInformation("Getting layers (includeEmpty: {IncludeEmpty}, includeHidden: {IncludeHidden})", 
-                includeEmpty, includeHidden);
+            // Removed logging to keep stdout clean for MCP protocol
 
             var allLayers = await _rhinoService.GetLayersAsync();
             

@@ -66,8 +66,7 @@ public class GetAllObjectsTool : McpServerTool
                 }
             }
 
-            _logger.LogInformation("Getting all objects (includeHidden: {IncludeHidden}, maxObjects: {MaxObjects})", 
-                includeHidden, maxObjects);
+            // Removed logging to keep stdout clean for MCP protocol
 
             var allObjects = await _rhinoService.GetAllObjectsAsync();
             
