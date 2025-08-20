@@ -41,11 +41,13 @@ git clone <repository-url>
 cd RhinoMcpServer
 
 # Build the project
-dotnet build
+dotnet build --configuration Release
 
-# Run the MCP server
-dotnet run
+# Run the MCP server (IMPORTANT: Use the batch file to avoid stdout pollution)
+start-mcp-server.bat
 ```
+
+**Important**: The server **must** be started using the provided batch file `start-mcp-server.bat` to ensure stdout remains clean for MCP protocol communication. Using `dotnet run` directly will cause JSON parse errors in Claude due to build output pollution.
 
 The server runs as a console application using **stdio transport** - it communicates through standard input/output streams.
 
@@ -95,9 +97,10 @@ Claude Code has built-in MCP support. Configure it to use this server:
 {
   "mcpServers": {
     "rhino": {
-      "command": "dotnet",
-      "args": ["run", "--project", "C:/path/to/RhinoMcpServer"],
-      "env": {}
+      "command": "C:/path/to/RhinoMcpServer/start-mcp-server.bat",
+      "args": [],
+      "env": {},
+      "cwd": "C:/path/to/RhinoMcpServer"
     }
   }
 }
@@ -114,7 +117,7 @@ Use an **Execute Command** node:
 
 ```json
 {
-  "command": "dotnet run --project C:/path/to/RhinoMcpServer",
+  "command": "start-mcp-server.bat",
   "options": {
     "cwd": "C:/path/to/RhinoMcpServer"
   }
@@ -126,7 +129,8 @@ Send MCP protocol messages via stdin and read responses from stdout.
 ### Make.com Integration
 
 Use Make's **System Command** module:
-- **Command**: `dotnet run --project C:/path/to/RhinoMcpServer`
+- **Command**: `start-mcp-server.bat`
+- **Working Directory**: `C:/path/to/RhinoMcpServer`
 - **Input**: MCP protocol JSON messages
 - **Output**: Parse JSON responses
 
@@ -140,8 +144,8 @@ Any application can consume this server by:
    {
        StartInfo = new ProcessStartInfo
        {
-           FileName = "dotnet",
-           Arguments = "run --project C:/path/to/RhinoMcpServer",
+           FileName = "C:/path/to/RhinoMcpServer/start-mcp-server.bat",
+           WorkingDirectory = "C:/path/to/RhinoMcpServer",
            UseShellExecute = false,
            RedirectStandardInput = true,
            RedirectStandardOutput = true
@@ -170,10 +174,10 @@ Any application can consume this server by:
 Test the server manually:
 ```bash
 # Start server
-dotnet run
+start-mcp-server.bat
 
 # In another terminal, send MCP messages
-echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"get_active_document","arguments":{}},"id":1}' | dotnet run
+echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"get_active_document","arguments":{}},"id":1}' | start-mcp-server.bat
 ```
 
 ## Architecture

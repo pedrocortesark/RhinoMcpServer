@@ -12,13 +12,17 @@ using System.Reflection;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-// Configure logging to stderr only (stdout is reserved for MCP protocol)
+// CRITICAL: Disable ALL logging to prevent stdout pollution
+// MCP protocol requires stdout to contain ONLY JSON messages
 builder.Logging.ClearProviders();
+// Only enable logging in debug builds
+#if DEBUG
 builder.Logging.AddConsole(options =>
 {
     options.LogToStandardErrorThreshold = LogLevel.Trace;
 });
-builder.Logging.SetMinimumLevel(LogLevel.Warning);
+#endif
+builder.Logging.SetMinimumLevel(LogLevel.Error);
 
 // Add configuration
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
@@ -63,21 +67,12 @@ var host = builder.Build();
 
 try
 {
-    var logger = host.Services.GetRequiredService<ILogger<Program>>();
-    var options = host.Services.GetRequiredService<IOptions<RhinoMcpServerOptions>>();
-    
-    // Startup logging moved to stderr to avoid interfering with MCP protocol on stdout
-    logger.LogDebug("Starting Rhino MCP Server v{Version}...", version);
-    logger.LogDebug("Configuration: MaxObjects={MaxObjects}, HeadlessMode={HeadlessMode}, Timeout={Timeout}s",
-        options.Value.MaxObjectsPerRequest,
-        options.Value.EnableHeadlessMode,
-        options.Value.TimeoutSeconds);
-    
+    // No startup logging - MCP protocol requires clean stdout
     await host.RunAsync();
 }
 catch (Exception ex)
 {
-    var logger = host.Services.GetRequiredService<ILogger<Program>>();
-    logger.LogCritical(ex, "A critical error occurred while running the MCP server");
+    // Only log critical errors to stderr
+    Console.Error.WriteLine($"CRITICAL ERROR: {ex.Message}");
     Environment.Exit(1);
 }
